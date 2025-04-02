@@ -1,14 +1,13 @@
 import { Route, Routes } from "react-router-dom";
+import { TodoListPage } from "../pages/todo-list";
+import { UsersPage } from "../pages/users";
 
-fetch("http://localhost:3001/users").then((res) => {
-  console.log(res);
-});
 
 export function App() {
   return (
     <Routes>
-      <Route path="/" />
-      <Route path="/:userId/tasks" />
+      <Route path="/" element={<UsersPage />} />
+      <Route path="/:userId/tasks" element={<TodoListPage />} />
     </Routes>
   );
 }
