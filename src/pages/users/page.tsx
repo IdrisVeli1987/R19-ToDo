@@ -1,40 +1,50 @@
+import { Suspense, use, useState } from "react";
+import { createUser, fetchUsers } from "../../Shared/api";
+
 type User = {
   id: string;
   email: string;
 };
 
+const defaultUsersPromise = fetchUsers();
+
 export const UsersPage = () => {
-  // const [users, setUsers] = useState<User[]>([]);
-  // const [email, setEmail] = useState("");
-
-  // const handleSubmit = (e: React.FormEvent<HTMLFormElement>) => {
-  //   e.preventDefault();
-  //   setUsers([...users, { id: crypto.randomUUID(), email }]);
-  //   setEmail("");
-  // };
-
-  // const handleDelete = (id: string) => {
-  //   setUsers((lastUsers) => lastUsers.filter((user) => user.id !== id));
-  // };
+  const [usersPromise, setUsersPromise] = useState(defaultUsersPromise);
+  const refetchUsers = () => {
+    setUsersPromise(fetchUsers());
+  };
 
   return (
     <main className="container mx-auto p-4 pt-10 flex flex-col gap-4">
       <h1 className="text-3xl font-bold underline">Users</h1>
-      <CreateUserForm />
-      <UsersList
-        users={[
-          { id: "1", email: "idrisveliev@gmail.com" },
-          { id: "2", email: "omarveliev@gmail.com" },
-        ]}
-      />
+      <CreateUserForm refetchUsers={refetchUsers} />
+      <Suspense fallback={<div>Loading...</div>}>
+        <UsersList usersPromise={usersPromise} />
+      </Suspense>
     </main>
   );
 };
 
-export function CreateUserForm() {
+export function CreateUserForm({ refetchUsers }: { refetchUsers: () => void }) {
+  const [email, setEmail] = useState("");
+
+  const handleSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    await createUser({
+      email,
+      id: crypto.randomUUID(),
+    });
+    refetchUsers();
+    setEmail("");
+  };
   return (
-    <form className="flex gap-2">
-      <input className="border p-2 rounded" type="email" />
+    <form className="flex gap-2" onSubmit={handleSubmit}>
+      <input
+        className="border p-2 rounded"
+        type="email"
+        value={email}
+        onChange={(e) => setEmail(e.target.value)}
+      />
       <button
         className="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded "
         type="submit"
@@ -45,7 +55,8 @@ export function CreateUserForm() {
   );
 }
 
-export function UsersList({ users }: { users: User[] }) {
+export function UsersList({ usersPromise }: { usersPromise: Promise<User[]> }) {
+  const users = use(usersPromise); // new hook. основная задача прямо в рендере превратить usersPromise в user'ов. не м.б массива
   return (
     <div className="flex flex-col">
       {users.map((user) => (
