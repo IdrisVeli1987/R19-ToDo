@@ -3,13 +3,14 @@ export type User = {
   email: string;
 };
 
+
 export function fetchUsers() {
   return fetch("http://localhost:3001/users").then(
     (res) => res.json() as Promise<User[]>
   );
 }
 
-export function CreateUser(user: User) {
+export function createUser(user: User) {
   return fetch("http://localhost:3001/users", {
     method: "POST",
     headers: {
