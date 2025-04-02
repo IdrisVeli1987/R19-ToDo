@@ -1,5 +1,5 @@
-import { Suspense, use, useState, useTransition } from "react";
-import { createUser, fetchUsers } from "../../Shared/api";
+import { startTransition, Suspense, use, useState, useTransition } from "react";
+import { createUser, deleteUser, fetchUsers } from "../../Shared/api";
 
 type User = {
   id: string;
@@ -10,9 +10,8 @@ const defaultUsersPromise = fetchUsers();
 
 export const UsersPage = () => {
   const [usersPromise, setUsersPromise] = useState(defaultUsersPromise);
-  const refetchUsers = () => {
-    setUsersPromise(fetchUsers());
-  };
+  const refetchUsers = () =>
+    startTransition(() => setUsersPromise(fetchUsers()));
 
   return (
     <main className="container mx-auto p-4 pt-10 flex flex-col gap-4">
@@ -38,10 +37,8 @@ export function CreateUserForm({ refetchUsers }: { refetchUsers: () => void }) {
         email,
         id: crypto.randomUUID(),
       });
-      startTransition(() => {
-        refetchUsers();
-        setEmail("");
-      });
+      refetchUsers();
+      setEmail("");
     });
   };
 
@@ -82,18 +79,36 @@ export function UsersList({
   );
 }
 
-export function UserCard({ user }: { user: User; refetchUsers: () => void }) {
+export function UserCard({
+  user,
+  refetchUsers,
+}: {
+  user: User;
+  refetchUsers: () => void;
+}) {
+  const [isPending, startTransition] = useTransition();
+
+  const handleDelete = async () => {
+    startTransition(async () => {
+      await deleteUser(user.id);
+      refetchUsers();
+    });
+  };
+  
   return (
     <div className="border p-2 m-2 rounded bg-gray-100 flex gap-2">
       {user.email}
 
       <button
-        className="bg-red-500 hover:bg-red-950 text-white font-bold py-2 px-4 rounded ml-auto"
+        className="bg-red-500 hover:bg-red-950 text-white font-bold py-2 px-4 rounded ml-auto disabled:bg-gray-300"
         type="button"
-        // onClick={() => handleDelete(user.id)}
+        disabled={isPending}
+        onClick={handleDelete}
       >
         Delete
       </button>
     </div>
   );
 }
+
+// 40 min 
