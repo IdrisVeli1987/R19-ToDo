@@ -1,8 +1,8 @@
 
-const TodoListPage = () => {
+export const TodoListPage = () => {
   return (
     <div>page</div>
   )
 }
 
-export default TodoListPage;
+ 
