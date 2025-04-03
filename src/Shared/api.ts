@@ -11,6 +11,8 @@ export function fetchUsers() {
 }
 
 export function createUser(user: User) {
+  throw new Error("Not implemented");
+
   return fetch("http://localhost:3001/users", {
     method: "POST",
     headers: {
@@ -21,5 +23,7 @@ export function createUser(user: User) {
 }
 
 export function deleteUser(id: string) {
-  return fetch(`http://localhost:3001/users/${id}`);
+  return fetch(`http://localhost:3001/users/${id}`, {
+    method: "Delete",
+  }).then((res) => res.json())
 }
