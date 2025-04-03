@@ -1,5 +1,14 @@
-import { startTransition, Suspense, use, useState, useTransition } from "react";
+import {
+  startTransition,
+  Suspense,
+  use,
+  useActionState,
+  useState,
+  useTransition,
+} from "react";
 import { createUser, deleteUser, fetchUsers } from "../../Shared/api";
+import { ErrorBoundary } from "react-error-boundary";
+import { createUserAction } from "./actions";
 
 type User = {
   id: string;
@@ -17,29 +26,32 @@ export const UsersPage = () => {
     <main className="container mx-auto p-4 pt-10 flex flex-col gap-4">
       <h1 className="text-3xl font-bold underline">Users</h1>
       <CreateUserForm refetchUsers={refetchUsers} />
-      <Suspense fallback={<div>Loading...</div>}>
-        <UsersList usersPromise={usersPromise} refetchUsers={refetchUsers} />
-      </Suspense>
+      <ErrorBoundary
+        fallbackRender={(e) => (
+          <div className="text-red-500">
+            Something went wrong:{JSON.stringify(e)}
+          </div>
+        )}
+      >
+        <Suspense fallback={<div>Loading...</div>}>
+          <UsersList usersPromise={usersPromise} refetchUsers={refetchUsers} />
+        </Suspense>
+      </ErrorBoundary>
     </main>
   );
 };
 
 export function CreateUserForm({ refetchUsers }: { refetchUsers: () => void }) {
   const [email, setEmail] = useState("");
+   
+  // const [isPending, startTransition] = useTransition(); //хук, кот. возвращает isPending и startTransition. это ф-ия перехода, долгие обновления. можно сделать асинхронные запросы
 
-  const [isPending, startTransition] = useTransition(); //хук, кот. возвращает isPending и startTransition. это ф-ия перехода, долгие обновления. можно сделать асинхронные запросы
+  const [state, dispatch, isPending] = useActionState(createUserAction({ refetchUsers, setEmail }), {});
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
 
-    startTransition(async () => {
-      await createUser({
-        email,
-        id: crypto.randomUUID(),
-      });
-      refetchUsers();
-      setEmail("");
-    });
+    startTransition(async () => {});
   };
 
   return (
@@ -94,7 +106,7 @@ export function UserCard({
       refetchUsers();
     });
   };
-  
+
   return (
     <div className="border p-2 m-2 rounded bg-gray-100 flex gap-2">
       {user.email}
@@ -111,4 +123,4 @@ export function UserCard({
   );
 }
 
-// 40 min 
+// 40 min
