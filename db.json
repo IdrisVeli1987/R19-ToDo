@@ -2,56 +2,16 @@
   "tasks": [],
   "users": [
     {
-      "id": "2fbfbeef-b7b2-43a8-8b1f-40c0bee2a109",
-      "email": "dss@sds.com"
+      "id": "36ddfbf0-c2f1-422b-b535-c0bfe26b1461",
+      "email": "idrisveliev@gmail.com"
     },
     {
-      "id": "897735ee-076a-4c4d-92e6-368db84f38ed",
-      "email": "idrisv@mail.ru"
+      "id": "54d534a4-0500-4df3-91cb-a0cb310238a4",
+      "email": "admin2@gmail.com"
     },
     {
-      "id": "dbff948e-95e3-4619-a161-fceeba183cee",
+      "id": "b0906421-a4be-458d-b5b5-b8c5d4e8a781",
       "email": "omar@gmail.com"
-    },
-    {
-      "id": "df8c6a0c-c101-452f-b8ba-825e0b3dc98c",
-      "email": ""
-    },
-    {
-      "id": "ab7f85f5-358a-4198-beee-fb3e39391708",
-      "email": "sdas@gmail.com"
-    },
-    {
-      "id": "1fd21e90-1fda-46c6-9688-630f659fd224",
-      "email": "idris@mail.ru"
-    },
-    {
-      "id": "49f69138-b5ea-494a-a2cd-59da9d26eeff",
-      "email": "sdasd@dasda.com"
-    },
-    {
-      "id": "8d06c45c-11b0-4560-a163-d64d336f49f3",
-      "email": "sdas@dfsfs.com"
-    },
-    {
-      "id": "c6315b53-02e4-48e4-9b6e-670cdb053821",
-      "email": "sdas@sdfdsf.com"
-    },
-    {
-      "id": "7e0272a4-a450-415a-9a2e-65e37ac04e1d",
-      "email": "cfr@cfr.com"
-    },
-    {
-      "id": "2ef400ab-09fa-45b9-a112-a5fdb9de6dd6",
-      "email": "dqwdq@sadsd"
-    },
-    {
-      "id": "1c9fd5cb-7f3f-48f5-bf7b-dfc301772675",
-      "email": "ramin@gmail.com"
-    },
-    {
-      "id": "48784921-1dfb-42d2-b065-15e26936da04",
-      "email": "neman@gmail.com"
     }
   ]
 }
