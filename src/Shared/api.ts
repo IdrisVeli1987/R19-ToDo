@@ -11,8 +11,6 @@ export function fetchUsers() {
 }
 
 export function createUser(user: User) {
-  throw new Error("Not implemented");
-
   return fetch("http://localhost:3001/users", {
     method: "POST",
     headers: {
