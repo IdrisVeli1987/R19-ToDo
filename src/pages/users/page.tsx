@@ -42,29 +42,23 @@ export const UsersPage = () => {
 };
 
 export function CreateUserForm({ refetchUsers }: { refetchUsers: () => void }) {
-  
-  const [email, setEmail] = useState("");
+  // const [email, setEmail] = useState("");
 
   // const [isPending, startTransition] = useTransition(); //хук, кот. возвращает isPending и startTransition. это ф-ия перехода, долгие обновления. можно сделать асинхронные запросы
 
   const [state, dispatch, isPending] = useActionState(
-    createUserAction({ refetchUsers, setEmail }),
-    {}
+    createUserAction({ refetchUsers }),
+    { email: "" }
   );
 
-  const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault();
-    dispatch({ email });
-  };
-
   return (
-    <form className="flex gap-2" onSubmit={handleSubmit}>
+    <form className="flex gap-2" action={dispatch}>
       <input
-        className="border p-2 rounded"
+        name="email"
         type="email"
-        value={email}
+        className="border p-2 rounded"
+        defaultValue={state.email}
         disabled={isPending}
-        onChange={(e) => setEmail(e.target.value)}
       />
       <button
         className="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded disabled:bg-gray-300"
