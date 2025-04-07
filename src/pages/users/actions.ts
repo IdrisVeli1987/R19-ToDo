@@ -1,33 +1,36 @@
 import { createUser } from "../../Shared/api";
 
 type CreateActionState = {
+  email: string;
   error?: string;
 };
 
 export const createUserAction =
-  ({
-    refetchUsers,
-    setEmail,
-  }: {
-    refetchUsers: () => void;
-    setEmail: (email: string) => void;
-  }) =>
+  ({ refetchUsers }: { refetchUsers: () => void }) =>
   async (
     prevState: CreateActionState,
-    formData: { email: string }
+    formData: FormData
   ): Promise<CreateActionState> => {
+    const email = formData.get("email") as string;
+    if (email === "admin@gmail.com") {
+      return {
+        email,
+        error: "Admin account is not allowed",
+      };
+    }
+
     try {
       await createUser({
-        email: formData.email,
+        email,
         id: crypto.randomUUID(),
       });
       refetchUsers();
-      setEmail("");
-
       return {
+        email: "",
       };
     } catch {
       return {
+        email,
         error: "Error while creating user",
       };
     }
