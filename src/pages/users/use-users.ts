@@ -1,5 +1,6 @@
 import { useState, startTransition } from "react";
 import { fetchUsers } from "../../Shared/api";
+import { createUserAction, deleteUserAction } from "./actions";
 
 const defaultUsersPromise = fetchUsers();
 
@@ -8,5 +9,9 @@ export function useUsers() {
   const refetchUsers = () =>
     startTransition(() => setUsersPromise(fetchUsers()));
 
-  return [usersPromise, refetchUsers] as const;
+  return {
+    createUserAction: createUserAction({ refetchUsers }),
+    deleteUserAction: deleteUserAction({ refetchUsers }),
+    usersPromise,
+  } as const;
 }
