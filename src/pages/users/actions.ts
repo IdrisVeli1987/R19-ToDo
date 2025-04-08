@@ -1,14 +1,19 @@
-import { createUser } from "../../Shared/api";
+import { createUser, deleteUser } from "../../Shared/api";
+
+// CREATE USER
 
 type CreateActionState = {
   email: string;
   error?: string;
 };
 
-export const createUserAction =
-  ({ refetchUsers }: { refetchUsers: () => void }) =>
-  async (
-    prevState: CreateActionState,
+export function createUserAction({
+  refetchUsers,
+}: {
+  refetchUsers: () => void;
+}) {
+  return async (
+    _: CreateActionState,
     formData: FormData
   ): Promise<CreateActionState> => {
     const email = formData.get("email") as string;
@@ -35,5 +40,35 @@ export const createUserAction =
       };
     }
   };
+}
 
 // Action-асинхронная ф-ия, к-я делает переходы, ф-ия для transition
+
+type DeleteUserActionState = {
+  error?: string;
+};
+
+// --------------------------------------------------------------------------
+
+// DELETE USER
+
+export function deleteUserAction({
+  id,
+  refetchUsers,
+}: {
+  refetchUsers: () => void;
+  id: string;
+}) {
+  return async (): Promise<DeleteUserActionState> => {
+    await deleteUser(id);
+    try {
+      await deleteUser(id);
+      refetchUsers();
+      return {};
+    } catch {
+      return {
+        error: "Error while deleting user",
+      };
+    }
+  };
+}
