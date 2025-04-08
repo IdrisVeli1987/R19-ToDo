@@ -3,12 +3,11 @@ import {
   Suspense,
   use,
   useActionState,
-  useState,
-  useTransition,
+  useState
 } from "react";
-import { createUser, deleteUser, fetchUsers } from "../../Shared/api";
 import { ErrorBoundary } from "react-error-boundary";
-import { createUserAction } from "./actions";
+import { fetchUsers } from "../../Shared/api";
+import { createUserAction, deleteUserAction } from "./actions";
 
 type User = {
   id: string;
@@ -96,27 +95,24 @@ export function UserCard({
   user: User;
   refetchUsers: () => void;
 }) {
-  const [isPending, startTransition] = useTransition();
-
-  const handleDelete = async () => {
-    startTransition(async () => {
-      await deleteUser(user.id);
-      refetchUsers();
-    });
-  };
+  const [state, handleDelete, isPending] = useActionState(
+    deleteUserAction({ id: user.id, refetchUsers }),
+    {}
+  );
 
   return (
     <div className="border p-2 m-2 rounded bg-gray-100 flex gap-2">
       {user.email}
 
-      <button
-        className="bg-red-500 hover:bg-red-950 text-white font-bold py-2 px-4 rounded ml-auto disabled:bg-gray-300"
-        type="button"
-        disabled={isPending}
-        onClick={handleDelete}
-      >
-        Delete
-      </button>
+      <form action={handleDelete} className="ml-auto">
+        <button
+          className="bg-red-500 hover:bg-red-950 text-white font-bold py-2 px-4 rounded ml-auto disabled:bg-gray-300"
+          disabled={isPending}
+        >
+          Delete{" "}
+          {state.error && <div className="text-red-500">{state.error}</div>}
+        </button>
+      </form>
     </div>
   );
 }
