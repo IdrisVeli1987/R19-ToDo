@@ -7,15 +7,17 @@ type CreateActionState = {
   error?: string;
 };
 
+export type CreateUserAction = (
+  state: CreateActionState,
+  formData: FormData
+) => Promise<CreateActionState>;
+
 export function createUserAction({
   refetchUsers,
 }: {
   refetchUsers: () => void;
-}) {
-  return async (
-    _: CreateActionState,
-    formData: FormData
-  ): Promise<CreateActionState> => {
+}): CreateUserAction {
+  return async (_, formData) => {
     const email = formData.get("email") as string;
     if (email === "admin@gmail.com") {
       return {
@@ -44,22 +46,29 @@ export function createUserAction({
 
 // Action-асинхронная ф-ия, к-я делает переходы, ф-ия для transition
 
-type DeleteUserActionState = {
-  error?: string;
-};
-
 // --------------------------------------------------------------------------
 
 // DELETE USER
 
+type DeleteUserActionState = {
+  error?: string;
+};
+
+export type DeleteUserAction = (
+  state: DeleteUserActionState,
+  formData: FormData
+) => Promise<DeleteUserActionState>;
+
 export function deleteUserAction({
-  id,
   refetchUsers,
 }: {
   refetchUsers: () => void;
-  id: string;
-}) {
-  return async (): Promise<DeleteUserActionState> => {
+}): DeleteUserAction {
+  return async (
+    _,
+    formData
+  ) => {
+    const id = formData.get("id") as string;
     await deleteUser(id);
     try {
       await deleteUser(id);
