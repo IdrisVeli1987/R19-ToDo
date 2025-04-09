@@ -1,4 +1,4 @@
-import { createUser, deleteUser } from "../../Shared/api";
+import { createUser, deleteUser, User } from "../../Shared/api";
 
 // CREATE USER
 
@@ -14,11 +14,14 @@ export type CreateUserAction = (
 
 export function createUserAction({
   refetchUsers,
+  optimisticCreate,
 }: {
   refetchUsers: () => void;
+  optimisticCreate: (user: User) => void;
 }): CreateUserAction {
   return async (_, formData) => {
     const email = formData.get("email") as string;
+    
     if (email === "admin@gmail.com") {
       return {
         email,
@@ -27,10 +30,12 @@ export function createUserAction({
     }
 
     try {
-      await createUser({
+      const user = {
         email,
         id: crypto.randomUUID(),
-      });
+      };
+      optimisticCreate(user);
+      await createUser(user);
       refetchUsers();
       return {
         email: "",
@@ -61,16 +66,16 @@ export type DeleteUserAction = (
 
 export function deleteUserAction({
   refetchUsers,
+  optimisticDelete,
 }: {
   refetchUsers: () => void;
+  optimisticDelete: (id: string) => void;
 }): DeleteUserAction {
-  return async (
-    _,
-    formData
-  ) => {
+  return async (_, formData) => {
     const id = formData.get("id") as string;
     await deleteUser(id);
     try {
+      optimisticDelete(id);
       await deleteUser(id);
       refetchUsers();
       return {};
