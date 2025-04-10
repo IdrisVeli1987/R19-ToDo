@@ -1,4 +1,4 @@
-import { Suspense, useActionState } from "react";
+import { Suspense, useActionState, useOptimistic, useRef } from "react";
 import { ErrorBoundary } from "react-error-boundary";
 import { CreateUserAction, DeleteUserAction } from "./actions";
 import { useUsers } from "./use-users";
@@ -24,7 +24,7 @@ export const UsersPage = () => {
       >
         <Suspense fallback={<div>Loading...</div>}>
           <UsersList
-Щ            deleteUserAction={deleteUserAction}
+            deleteUserAction={deleteUserAction}
             useUsersList={useUsersList}
           />
         </Suspense>
@@ -46,13 +46,25 @@ export function CreateUserForm({
     email: "",
   });
 
+  const [optimisticState, setOptimisticState] = useOptimistic(state);
+
+  const form = useRef<HTMLFormElement>(null);
+
   return (
-    <form className="flex gap-2" action={dispatch}>
+    <form
+      className="flex gap-2"
+      ref={form}
+      action={(formData: FormData) => {
+        setOptimisticState({ email: "" });
+        dispatch(formData);
+        form.current?.reset();
+      }}
+    >
       <input
         name="email"
         type="email"
         className="border p-2 rounded"
-        defaultValue={state.email}
+        defaultValue={optimisticState.email}
       />
       <button
         className="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded disabled:bg-gray-300"
@@ -60,7 +72,9 @@ export function CreateUserForm({
       >
         Add
       </button>
-      {state.error && <div className="text-red-500">{state.error}</div>}
+      {optimisticState.error && (
+        <div className="text-red-500">{optimisticState.error}</div>
+      )}
     </form>
   );
 }
@@ -70,7 +84,7 @@ export function UsersList({
   useUsersList,
 }: {
   useUsersList: () => User[];
-  deleteUserAction: DeleteUserAction
+  deleteUserAction: DeleteUserAction;
 }) {
   const users = useUsersList(); // use -new hook. основная задача прямо в рендере превратить usersPromise в user'ов. не м.б массива
   return (
@@ -113,4 +127,4 @@ export function UserCard({
   );
 }
 
-// 1,06 min
+// 1,13 min
