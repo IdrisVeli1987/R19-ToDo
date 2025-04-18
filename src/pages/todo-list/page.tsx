@@ -1,15 +1,23 @@
-import { Suspense } from "react";
+import { Suspense, use, useMemo, useState } from "react";
 import { ErrorBoundary } from "react-error-boundary";
+import { fetchTasks, Task } from "../../Shared/api";
+import { useParams } from "react-router-dom";
 
-type Task = {
-  id: string;
-  email: string;
-};
+export const TodoListPage = () => {
+  const { userId } = useParams();
 
-export const TasksPage = () => {
+  const [paginatedTasksPromise, setTasksPromise] = useState(() =>
+    fetchTasks({ filters: { userId } })
+  );
+
+  const tasksPromise = useMemo(
+    () => paginatedTasksPromise.then((r) => r.data),
+    [paginatedTasksPromise]
+  );
+
   return (
     <main className="container mx-auto p-4 pt-10 flex flex-col gap-4">
-      <h1 className="text-3xl font-bold underline">Users</h1>
+      <h1 className="text-3xl font-bold underline">Tasks: user {userId}</h1>
       <CreateTaskForm />
       <ErrorBoundary
         fallbackRender={(e) => (
@@ -19,7 +27,7 @@ export const TasksPage = () => {
         )}
       >
         <Suspense fallback={<div>Loading...</div>}>
-          <TasksList />
+          <TasksList tasksPromise={tasksPromise} />
         </Suspense>
       </ErrorBoundary>
     </main>
@@ -27,7 +35,10 @@ export const TasksPage = () => {
 };
 
 // Task
-export function CreateTaskForm() {
+export function CreateTaskForm({}: {
+
+}) {
+  
   // const [email, setEmail] = useState("");
 
   // const [isPending, startTransition] = useTransition(); //хук, кот. возвращает isPending и startTransition. это ф-ия перехода, долгие обновления. можно сделать асинхронные запросы
@@ -45,8 +56,8 @@ export function CreateTaskForm() {
   );
 }
 
-export function TasksList() {
-  const tasks = [];
+export function TasksList({ tasksPromise }: { tasksPromise: Promise<Task[]> }) {
+  const tasks = use(tasksPromise);
   return (
     <div className="flex flex-col">
       {tasks.map((task) => (
@@ -59,7 +70,7 @@ export function TasksList() {
 export function TaskCard({ task }: { task: Task }) {
   return (
     <div className="border p-2 m-2 rounded bg-gray-100 flex gap-2">
-      {task.email}
+      {task.title}
 
       <form className="ml-auto">
         <input type="hidden" name="id" value={task.id} />
@@ -70,5 +81,3 @@ export function TaskCard({ task }: { task: Task }) {
     </div>
   );
 }
-
-// 1,24 min
