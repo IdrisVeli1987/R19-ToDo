@@ -2,6 +2,7 @@ import { Suspense, useActionState, useOptimistic, useRef } from "react";
 import { ErrorBoundary } from "react-error-boundary";
 import { CreateUserAction, DeleteUserAction } from "./actions";
 import { useUsers } from "./use-users";
+import { Link } from "react-router-dom";
 
 type User = {
   id: string;
@@ -115,6 +116,7 @@ export function UserCard({
 
       <form action={handleDelete} className="ml-auto">
         <input type="hidden" name="id" value={user.id} />
+        <Link to= {`/${user.id}/tasks`} className="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 ml-auto disabled:bg-gray-500">Tasks</Link>
         <button
           className="bg-red-500 hover:bg-red-950 text-white font-bold py-2 px-4 rounded ml-auto disabled:bg-gray-300"
           formAction={handleDelete}
