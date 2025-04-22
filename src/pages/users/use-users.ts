@@ -5,6 +5,7 @@ import { createUserAction, deleteUserAction } from "./actions";
 const defaultUsersPromise = fetchUsers();
 
 export function useUsers() {
+  const defaultUsersPromise = fetchUsers();
   const [usersPromise, setUsersPromise] = useState(defaultUsersPromise);
   const refetchUsers = () =>
     startTransition(() => setUsersPromise(fetchUsers()));
