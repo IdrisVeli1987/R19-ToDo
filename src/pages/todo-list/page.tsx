@@ -29,16 +29,16 @@ export const TodoListPage = () => {
   return (
     <main className="container mx-auto p-4 pt-10 flex flex-col gap-4">
       <h1 className="text-3xl font-bold underline">Tasks: user {userId}</h1>
-      <CreateTaskForm refetchTask={refetchTasks} userId={userId} />
+      <CreateTaskForm refetchTasks={refetchTasks} userId={userId} />
       <ErrorBoundary
         fallbackRender={(e) => (
           <div className="text-red-500">
-            Something went wrong:{JSON.stringify(e)}
+            Something went wrong:{JSON.stringify(e)}{" "}
           </div>
         )}
       >
         <Suspense fallback={<div>Loading...</div>}>
-          <TasksList tasksPromise={tasksPromise} />
+          <TasksList tasksPromise={tasksPromise} refetchTasks={refetchTasks}/>
         </Suspense>
       </ErrorBoundary>
     </main>
@@ -99,9 +99,10 @@ export function TaskCard({
   refetchTasks: () => void;
 }) {
   const [deleteState, handleDelete, isPending] = useActionState(
-    deleteTaskAction({ refetchTasks }),
+    deleteTaskAction({ refetchTask: refetchTasks }),
     {}
   );
+  
   return (
     <div className="border p-2 m-2 rounded bg-gray-100 flex gap-2">
       {task.title}
@@ -111,7 +112,10 @@ export function TaskCard({
           disabled={isPending}
           className="bg-red-500 hover:bg-red-950 text-white font-bold py-2 px-4 rounded ml-auto disabled:bg-gray-300"
         >
-          Delete {deleteState.error && <div className="text-red-500">{deleteState.error}</div>}
+          Delete{" "}
+          {deleteState.error && (
+            <div className="text-red-500">{deleteState.error}</div>
+          )}
         </button>
       </form>
     </div>
