@@ -71,7 +71,8 @@ export function deleteTaskAction({
       await deleteTask(id);
       refetchTask();
       return {};
-    } catch {
+    } catch (e) {
+      console.log(e);
       return {
         error: "Error while deleting task",
       };
