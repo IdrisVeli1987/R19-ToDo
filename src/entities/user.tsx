@@ -1,31 +1,14 @@
-import { createContext, startTransition, use, useState } from "react";
-import { User, fetchUsers } from "../Shared/api";
+import { startTransition } from "react";
+import { create } from "zustand";
+import { fetchUsers, User } from "../Shared/api";
 
-type UserContextType = {
+type UserState = {
   usersPromise: Promise<User[]>;
   refetchUsers: () => void;
 };
 
-const UsersContext = createContext<UserContextType | null>(null);
-
-const defaultUsersPromise = fetchUsers();
-export function UsersProvider({ children }: { children: React.ReactNode }) {
-  const [usersPromise, setUsersPromise] = useState(defaultUsersPromise);
-
-  const refetchUsers = () =>
-    startTransition(() => setUsersPromise(fetchUsers()));
-
-  return (
-    <UsersContext value={{ usersPromise, refetchUsers }}>
-      {children}
-    </UsersContext>
-  );
-}
-
-export function useUsersGlobal() {
-  const context = use(UsersContext);
-  if (!context) {
-    throw new Error("useUsers must be used within a UsersProvider");
-  }
-  return context;
-}
+export const useUsersGlobal = create<UserState>((set) => ({
+  usersPromise: fetchUsers(),
+  refetchUsers: () =>
+    startTransition(() => set({ usersPromise: fetchUsers() })),
+}));
