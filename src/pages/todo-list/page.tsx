@@ -9,7 +9,7 @@ import {
 import { ErrorBoundary } from "react-error-boundary";
 import { useParams } from "react-router-dom";
 import { useUsersGlobal } from "../../entities/user";
-import { fetchTasks, Task } from "../../Shared/api";
+import { fetchTasks, PaginatedResponse, Task } from "../../Shared/api";
 import { createTaskAction, deleteTaskAction } from "./actions";
 
 export const TodoListPage = () => {
@@ -41,6 +41,7 @@ export const TodoListPage = () => {
       >
         <Suspense fallback={<div>Loading...</div>}>
           <TasksList tasksPromise={tasksPromise} refetchTasks={refetchTasks} />
+          <Pagination tasksPaginated={paginatedTasksPromise} page={1} />
         </Suspense>
       </ErrorBoundary>
     </main>
@@ -54,6 +55,30 @@ function UserPreview({ userId }: { userId: string }) {
   return <span>{users.find((u) => u.id === userId)?.email}</span>;
 }
 
+function Pagination({
+  page,
+  tasksPaginated,
+}: {
+  tasksPaginated: Promise<PaginatedResponse<Task>>;
+  page: number;
+}) {
+  const { last, first, next, prev, pages } = use(tasksPaginated);
+
+  return (
+    <nav className="flex items-center justify-between">
+      <div className="grid grid-cols-4 gap-2">
+        <button className="px-3 py-2 rounded-1">First ({first})</button>
+        {prev && <button className="px-3 py-2">Prev ({prev})</button>}
+        {next && <button className="px-3 py-2">Next ({next})</button>}
+        <button className="px-3 py-2 rounded">Last ({last})</button>
+      </div>
+      <span className="text-sm">
+        Page {page} of {pages}
+      </span>
+    </nav>
+  );
+}
+
 export function CreateTaskForm({
   userId,
   refetchTask,
@@ -61,8 +86,6 @@ export function CreateTaskForm({
   userId: string;
   refetchTask: () => void;
 }) {
-  // const [isPending, startTransition] = useTransition(); //хук, кот. возвращает isPending и startTransition. это ф-ия перехода, долгие обновления. можно сделать асинхронные запросы
-
   const [state, dispatch, isPending] = useActionState(
     createTaskAction({ refetchTask, userId }),
     { title: "" }
@@ -116,7 +139,7 @@ export function TaskCard({
     <div className="border p-2 m-2 rounded bg-gray-100 flex gap-2">
       {task.title} -
       <Suspense fallback={<div>Loading...</div>}>
-      <UserPreview userId={task.userId} />
+        <UserPreview userId={task.userId} />
       </Suspense>
       <UserPreview userId={task.userId} />
       <form className="ml-auto" action={handleDelete}>
