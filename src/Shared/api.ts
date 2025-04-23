@@ -3,7 +3,7 @@ export type User = {
   email: string;
 };
 
-const sleep = (ms: number) => new Promise((resolve) => setTimeout(resolve, ms));
+// const sleep = (ms: number) => new Promise((resolve) => setTimeout(resolve, ms));
 
 export  function fetchUsers() {
   // await sleep(3000); // имитация задержки
