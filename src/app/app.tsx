@@ -1,7 +1,7 @@
 import { Route, Routes } from "react-router-dom";
 import { TodoListPage } from "../pages/todo-list";
 import { UsersPage } from "../pages/users";
-import { UsersProvider } from "../pages/users/user-context";
+import { UsersProvider } from "../pages/users/users-context";
 
 export function App() {
   return (
@@ -14,4 +14,3 @@ export function App() {
   );
 }
 
-// 7 min
