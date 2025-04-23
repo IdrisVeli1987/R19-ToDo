@@ -7,8 +7,9 @@ import {
   useState,
 } from "react";
 import { ErrorBoundary } from "react-error-boundary";
-import { fetchTasks, Task } from "../../Shared/api";
 import { useParams } from "react-router-dom";
+import { useUsersGlobal } from "../../entities/user";
+import { fetchTasks, Task } from "../../Shared/api";
 import { createTaskAction, deleteTaskAction } from "./actions";
 
 export const TodoListPage = () => {
@@ -28,7 +29,8 @@ export const TodoListPage = () => {
 
   return (
     <main className="container mx-auto p-4 pt-10 flex flex-col gap-4">
-      <h1 className="text-3xl font-bold underline">Tasks: user {userId}</h1>
+      <h1 className="text-3xl font-bold underline">Tasks:</h1>
+
       <CreateTaskForm refetchTasks={refetchTasks} userId={userId} />
       <ErrorBoundary
         fallbackRender={(e) => (
@@ -38,12 +40,19 @@ export const TodoListPage = () => {
         )}
       >
         <Suspense fallback={<div>Loading...</div>}>
-          <TasksList tasksPromise={tasksPromise} refetchTasks={refetchTasks}/>
+          <TasksList tasksPromise={tasksPromise} refetchTasks={refetchTasks} />
         </Suspense>
       </ErrorBoundary>
     </main>
   );
 };
+
+function UserPreview({ userId }: { userId: string }) {
+  const { usersPromise } = useUsersGlobal();
+
+  const users = use(usersPromise);
+  return <span>{users.find((u) => u.id === userId)?.email}</span>;
+}
 
 export function CreateTaskForm({
   userId,
@@ -102,12 +111,16 @@ export function TaskCard({
     deleteTaskAction({ refetchTask: refetchTasks }),
     {}
   );
-  
+
   return (
     <div className="border p-2 m-2 rounded bg-gray-100 flex gap-2">
-      {task.title}
-
+      {task.title} -
+      <Suspense fallback={<div>Loading...</div>}>
+      <UserPreview userId={task.userId} />
+      </Suspense>
+      <UserPreview userId={task.userId} />
       <form className="ml-auto" action={handleDelete}>
+        <input type="hidden" name="id" value={task.id} />
         <button
           disabled={isPending}
           className="bg-red-500 hover:bg-red-950 text-white font-bold py-2 px-4 rounded ml-auto disabled:bg-gray-300"
