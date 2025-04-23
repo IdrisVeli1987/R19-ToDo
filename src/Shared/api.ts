@@ -3,8 +3,11 @@ export type User = {
   email: string;
 };
 
-export function fetchUsers() {
-  return fetch("http://localhost:3001/users").then(
+const sleep = (ms: number) => new Promise((resolve) => setTimeout(resolve, ms));
+
+export  function fetchUsers() {
+  // await sleep(3000); // имитация задержки
+  return   fetch("http://localhost:3001/users").then(
     (res) => res.json() as Promise<User[]>
   );
 }
