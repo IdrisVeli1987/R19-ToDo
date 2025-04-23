@@ -7,18 +7,18 @@ type CreateActionState = {
   error?: string;
 };
 
-export type CreateTaskAction = (
+export type createTaskAction = (
   state: CreateActionState,
   formData: FormData
 ) => Promise<CreateActionState>;
 
 export function createTaskAction({
-  refetchTask,
+  refetchTasks,
   userId,
 }: {
   userId: string;
-  refetchTask: () => void;
-}): CreateTaskAction {
+  refetchTasks: () => void;
+}): createTaskAction {
   return async (_, formData) => {
     const title = formData.get("title") as string;
 
@@ -31,7 +31,7 @@ export function createTaskAction({
         id: crypto.randomUUID(),
       };
       await createTask(task);
-      refetchTask();
+      refetchTasks();
       return {
         title: "",
       };
