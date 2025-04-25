@@ -5,6 +5,7 @@ import {
   useActionState,
   useMemo,
   useState,
+  useTransition,
 } from "react";
 import { ErrorBoundary } from "react-error-boundary";
 import { useParams } from "react-router-dom";
@@ -15,37 +16,52 @@ import { createTaskAction, deleteTaskAction } from "./actions";
 export const TodoListPage = () => {
   const { userId = "" } = useParams();
 
+  const [page, setPage] = useState(1);
   const [paginatedTasksPromise, setTasksPromise] = useState(() =>
     fetchTasks({ filters: { userId } })
   );
 
   const refetchTasks = () =>
-    startTransition(() => setTasksPromise(fetchTasks({ filters: { userId } })));
+    startTransition(() =>
+      setTasksPromise(fetchTasks({ filters: { userId }, page }))
+    );
 
-  const tasksPromise = useMemo(
-    () => paginatedTasksPromise.then((r) => r.data),
-    [paginatedTasksPromise]
-  );
+  const onPageChange = (newPage: number) => {
+    setPage(newPage);
+    setTasksPromise(fetchTasks({ filters: { userId }, page: newPage }));
 
-  return (
-    <main className="container mx-auto p-4 pt-10 flex flex-col gap-4">
-      <h1 className="text-3xl font-bold underline">Tasks:</h1>
+    const tasksPromise = useMemo(
+      () => paginatedTasksPromise.then((r) => r.data),
+      [paginatedTasksPromise]
+    );
 
-      <CreateTaskForm refetchTasks={refetchTasks} userId={userId} />
-      <ErrorBoundary
-        fallbackRender={(e) => (
-          <div className="text-red-500">
-            Something went wrong:{JSON.stringify(e)}{" "}
-          </div>
-        )}
-      >
-        <Suspense fallback={<div>Loading...</div>}>
-          <TasksList tasksPromise={tasksPromise} refetchTasks={refetchTasks} />
-          <Pagination tasksPaginated={paginatedTasksPromise} page={1} />
-        </Suspense>
-      </ErrorBoundary>
-    </main>
-  );
+    return (
+      <main className="container mx-auto p-4 pt-10 flex flex-col gap-4">
+        <h1 className="text-3xl font-bold underline">Tasks:</h1>
+
+        <CreateTaskForm refetchTasks={refetchTasks} userId={userId} />
+        <ErrorBoundary
+          fallbackRender={(e) => (
+            <div className="text-red-500">
+              Something went wrong:{JSON.stringify(e)}{" "}
+            </div>
+          )}
+        >
+          <Suspense fallback={<div>Loading...</div>}>
+            <TasksList
+              tasksPromise={tasksPromise}
+              refetchTasks={refetchTasks}
+            />
+            <Pagination
+              tasksPaginated={paginatedTasksPromise}
+              page={page}
+              onPageChange={onPageChange}
+            />
+          </Suspense>
+        </ErrorBoundary>
+      </main>
+    );
+  };
 };
 
 function UserPreview({ userId }: { userId: string }) {
@@ -58,19 +74,59 @@ function UserPreview({ userId }: { userId: string }) {
 function Pagination({
   page,
   tasksPaginated,
+  onPageChange,
 }: {
   tasksPaginated: Promise<PaginatedResponse<Task>>;
   page: number;
+  onPageChange?: (page: number) => void;
 }) {
+  const [isLoading, startTransition] = useTransition();
   const { last, first, next, prev, pages } = use(tasksPaginated);
 
+  const handlePageChange = (page: number) => () => {
+    console.log(page);
+    startTransition(() => onPageChange?.(page));
+  };
+
   return (
-    <nav className="flex items-center justify-between">
+    <nav
+      className={`${
+        isLoading ? "opacity-50" : ""
+      } flex items-center justify-between`}
+    >
       <div className="grid grid-cols-4 gap-2">
-        <button className="px-3 py-2 rounded-1">First ({first})</button>
-        {prev && <button className="px-3 py-2">Prev ({prev})</button>}
-        {next && <button className="px-3 py-2">Next ({next})</button>}
-        <button className="px-3 py-2 rounded">Last ({last})</button>
+        <button
+          disabled={isLoading}
+          onClick={handlePageChange(first)}
+          className="px-3 py-2 rounded-1"
+        >
+          First ({first})
+        </button>
+        {prev && (
+          <button
+            disabled={isLoading}
+            onClick={handlePageChange(prev)}
+            className="px-3 py-2"
+          >
+            Prev ({prev})
+          </button>
+        )}
+        {next && (
+          <button
+            disabled={isLoading}
+            onClick={handlePageChange(next)}
+            className="px-3 py-2"
+          >
+            Next ({next})
+          </button>
+        )}
+        <button
+          disabled={isLoading}
+          onClick={handlePageChange(last)}
+          className="px-3 py-2 rounded"
+        >
+          Last ({last})
+        </button>
       </div>
       <span className="text-sm">
         Page {page} of {pages}
@@ -158,4 +214,4 @@ export function TaskCard({
   );
 }
 
-// 1.40 min
+// 2.00 min
